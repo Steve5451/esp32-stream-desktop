@@ -1,9 +1,18 @@
 #pragma GCC push_options
 #pragma GCC optimize ("O3") // O3 boosts fps by 20%
 
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
+#define HOST_IP ""
+#define HOST_PORT 5451
+
+#define BUFFER_SIZE 25000 // size of incoming jpeg buffer. can be smaller as each frame is less than 10kb at 50 jpeg quality 240x135
 #define SENSOR_POLL_INTERVAL 100
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 135
+#define L_BUTTON_GPIO 0
+#define R_BUTTON_GPIO 35
+
 #include "JPEGDEC.h"
 #include <TFT_eSPI.h>
 #include <WiFi.h>
@@ -11,16 +20,10 @@
 TFT_eSPI tft = TFT_eSPI();
 WiFiClient client;
 JPEGDEC jpeg;
-const char *SSID = "";
-const char *PASSWORD = "";
-const int port = 5451;
-const char *host = ""; // IP address of host
-const int bufferSize = 25000; // buffer can be smaller as each frame is less than 10kb at 50 jpeg quality 240x135
+
 uint8_t *buffer;
 int bufferLength = 0;
 const byte requestMessage[] = {0x55, 0x44, 0x55, 0x11}; // request message should probably be longer to avoid a false positive
-const int L_BUTTON_GPIO = 0;
-const int R_BUTTON_GPIO = 35;
 unsigned long lastUpdate = 0;
 volatile int updates = 0;
 volatile int fps = 0;
@@ -49,14 +52,14 @@ struct JPEGData {
 JPEGData *jpegBlock;
 
 void setup() {
-  buffer = (uint8_t*)malloc(bufferSize * sizeof(uint8_t));
+  buffer = (uint8_t*)malloc(BUFFER_SIZE * sizeof(uint8_t));
   jpegBlock = (JPEGData*)malloc(sizeof(JPEGData));
   fpsSprite.createSprite(24, 16);
   fpsPtr = fpsSprite.getPointer();
   
-  Serial.begin(115200); // fps is reported over serial
+  Serial.begin(115200); // fps is reHOST_PORTed over serial
   
-  client = WiFi.begin(SSID, PASSWORD); // TODO: allow device to reconnect if connection is lost
+  client = WiFi.begin(WIFI_SSID, WIFI_PASSWORD); // TODO: allow device to reconnect if connection is lost
     
   pinMode(L_BUTTON_GPIO, INPUT);
   pinMode(R_BUTTON_GPIO, INPUT);
@@ -68,7 +71,7 @@ void setup() {
   tft.setTextColor(TFT_GREEN);
   tft.println("Connecting to Wi-Fi");
   tft.setTextColor(TFT_WHITE);
-  tft.println(SSID);
+  tft.println(WIFI_SSID);
 
   fpsSprite.setTextSize(2);
   fpsSprite.setTextColor(TFT_GREEN);
@@ -96,7 +99,7 @@ void setup() {
   tft.setCursor(0, 0);
   tft.println("Wi-Fi connected");
 
-  if(client.connect(host, port)) {
+  if(client.connect(HOST_IP, HOST_PORT)) {
     tft.println("Connected to server");
   } else {
     tft.setTextColor(TFT_RED);
@@ -127,9 +130,8 @@ void loop() {
 
         if(jpeg.decode(0, 0, 1)) {
           if(brightnessMode) {
-            while(readyToDraw) {
+            while(readyToDraw) { // prevent drawing brightness menu while jpeg mcu is being drawn to display
               taskYIELD();
-              continue;
             }
             
             tft.fillRect(0, 30, SCREEN_WIDTH, 15, TFT_BLACK); // TODO: handle brightness menu like the fps counter is handled to avoid flicker
@@ -155,7 +157,7 @@ void loop() {
 
   unsigned long time = millis();
 
-  if(time >= lastUpdate + 1000) {
+  if(time - lastUpdate >= 1000) {
     float overtime = float(time - lastUpdate) / 1000.0;
     fps = floor((float)updates / overtime);
     
@@ -194,7 +196,7 @@ void drawPixels(void* pvParameters) {
 
     unsigned long time = millis();
     
-    if(time > lastSensorRead + SENSOR_POLL_INTERVAL) {
+    if(time - lastSensorRead >= SENSOR_POLL_INTERVAL) {
       lastSensorRead = time;
       
       bool LStatus = digitalRead(L_BUTTON_GPIO) == LOW;
