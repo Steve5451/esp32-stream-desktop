@@ -6,7 +6,7 @@
 #define HOST_IP ""
 #define HOST_PORT 5451
 
-#define BUFFER_SIZE 25000 // size of incoming jpeg buffer. can be smaller as each frame is less than 10kb at 50 jpeg quality 240x135
+#define BUFFER_SIZE 25000 // size of incoming jpeg buffer. can be smaller as each frame is less than 10kb at 50 jpeg quality @ 240x135
 #define SENSOR_POLL_INTERVAL 100
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 135
