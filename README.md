@@ -6,3 +6,5 @@ Left button toggles FPS counter, right button flips display. Press both to open 
 At the top of client/stream_desktop.ino file set your WIFI_SSID, WIFI_PASSWORD, and HOST_IP definitions.
 
 Server is very inefficient, I suspect that it may be a bottleneck. If you're getting poor FPS, delayed video, or stutters your PC may be unable to keep up. Increase the time on the server's screenCapIntervalServer variable.
+
+The couple stutters you get a minute are probably related to the server as well.
