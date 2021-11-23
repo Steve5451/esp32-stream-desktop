@@ -57,7 +57,7 @@ void setup() {
   fpsSprite.createSprite(24, 16);
   fpsPtr = fpsSprite.getPointer();
   
-  Serial.begin(115200); // fps is reHOST_PORTed over serial
+  Serial.begin(115200); // fps is reported over serial
   
   client = WiFi.begin(WIFI_SSID, WIFI_PASSWORD); // TODO: allow device to reconnect if connection is lost
     
