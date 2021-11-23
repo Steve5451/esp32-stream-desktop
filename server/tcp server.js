@@ -34,7 +34,7 @@ async function captureScreenshot() {
 		quality: jpegQuality, 
 		optimiseCoding: true,
 		trellisQuantisation: true,
-		overshootDeringing: false,
+		overshootDeringing: true,
 		chromaSubsampling: "4:2:0",
 		progressive: false,
 		mozjpeg: false,
