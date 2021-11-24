@@ -1,6 +1,6 @@
 'use strict'; // this server is a placeholder until it's rewritten in C# due to the lack of good screenshot/recording libraries
 
-// fps will depend on your system. if your esp32 has large latency you'll have to lower screenCapInterval. doing so will limit your maximum fps.
+// fps will depend on your system. if your esp32 has large latency you'll have to increase screenCapInterval. doing so will limit your maximum fps.
 // designed to have only 1 client
 
 const net = require("net"),
